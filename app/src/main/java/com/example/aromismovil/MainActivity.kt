@@ -3,45 +3,66 @@ package com.example.aromismovil
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.aromismovil.ui.theme.AromisMovilTheme
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.aromismovil.view.CatalogoScreen
+import com.example.aromismovil.view.CarritoScreen
+import com.example.aromismovil.view.ConfirmacionScreen
+import com.example.aromismovil.view.PerfilScreen
+import com.example.aromismovil.viewmodel.ProductoViewModel
+import com.example.aromismovil.viewmodel.UsuarioViewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val productoViewModel: ProductoViewModel by viewModels()
+    private val usuarioViewModel: UsuarioViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            AromisMovilTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            AromisApp(productoViewModel, usuarioViewModel)
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AromisApp(
+    productoViewModel: ProductoViewModel,
+    usuarioViewModel: UsuarioViewModel
+) {
+    val navController: NavHostController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AromisMovilTheme {
-        Greeting("Android")
+    MaterialTheme {
+        Surface {
+            NavHost(
+                navController = navController,
+                startDestination = "catalogo"
+            ) {
+                composable("catalogo") {
+                    CatalogoScreen(
+                        navController = navController,
+                        viewModel = productoViewModel
+                    )
+                }
+                composable("carrito") {
+                    CarritoScreen(
+                        navController = navController,
+                        viewModel = productoViewModel
+                    )
+                }
+                composable("confirmacion") {
+                    ConfirmacionScreen(navController = navController)
+                }
+                composable("perfil") {
+                    PerfilScreen(viewModel = usuarioViewModel)
+                }
+            }
+        }
     }
 }

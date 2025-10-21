@@ -10,9 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 @Composable
-fun ConfirmacionScreen() {
+fun ConfirmacionScreen(navController: NavHostController) {
     Column(
         Modifier
             .fillMaxSize()
