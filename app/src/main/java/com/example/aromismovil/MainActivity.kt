@@ -28,22 +28,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🔹 Inicializa productos de ejemplo (solo para pruebas locales)
         val demo = listOf(
             Producto(
                 id = 1,
                 nombre = "Polera Oversize Blanca",
                 precio = 12990.0,
                 descripcion = "Polera 100% algodón con corte oversize",
-                imagenUrl = "https://www.falabella.com/cdn-cgi/imagedelivery/4fYuQyy-r8_rpBpcY7lH_A/falabellaCL/883157401_1/public",
+                imagenRes = R.drawable.ropa3, //  tu imagen local
                 stock = 10
             ),
             Producto(
                 id = 2,
                 nombre = "Pantalón Cargo Beige",
                 precio = 19990.0,
-                descripcion = "Pantalón con bolsillos laterales y ajuste en tobillos",
-                imagenUrl = "https://i.pinimg.com/736x/11/7b/b9/117bb96d26e53a8195ecf38c3fbd2411.jpg",
+                descripcion = "Pantalón con bolsillos laterales",
+                imagenRes = R.drawable.ropa2,
                 stock = 5
             ),
             Producto(
@@ -51,10 +50,11 @@ class MainActivity : ComponentActivity() {
                 nombre = "Chaqueta Jeans Unisex",
                 precio = 24990.0,
                 descripcion = "Chaqueta de mezclilla clásica",
-                imagenUrl = "https://silverdodo.com/cdn/shop/products/unisex-denim-jacket-black-denim-front-61b2e2cf072a8_1024x1024@2x.jpg?v=1690713571",
+                imagenRes = R.drawable.ropa1,
                 stock = 3
             )
         )
+
 
         // Carga los productos solo si la lista está vacía
         if (productoViewModel.productos.value.isEmpty()) {
