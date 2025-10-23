@@ -14,15 +14,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.aromismovil.model.Producto
+import com.example.aromismovil.model.ProductoEntity
+import com.example.aromismovil.viewmodel.CarritoViewModel
 import com.example.aromismovil.viewmodel.ProductoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleProductoScreen(
-    producto: Producto,
+    producto: ProductoEntity,
     navController: NavController,
-    viewModel: ProductoViewModel
+    productoViewModel: ProductoViewModel,
+    carritoViewModel: CarritoViewModel
 ) {
     val scroll = rememberScrollState()
 
@@ -40,7 +42,7 @@ fun DetalleProductoScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    viewModel.agregarAlCarrito(producto)
+                    carritoViewModel.agregarAlCarrito(producto)
                     navController.navigate("carrito")
                 }
             ) {
@@ -54,7 +56,7 @@ fun DetalleProductoScreen(
                 .verticalScroll(scroll)
                 .fillMaxSize()
         ) {
-            // ✅ Imagen local desde drawable
+            // 🖼 Imagen
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,10 +101,12 @@ fun DetalleProductoScreen(
 
                 Spacer(Modifier.height(12.dp))
 
+                // ✅ Mostrar stock real
                 Text(
-                    "Disponibilidad: " +
-                            if (producto.disponible) "En stock (${producto.stock})"
-                            else "Agotado"
+                    text = if (producto.stock > 0)
+                        "Disponibilidad: En stock (${producto.stock})"
+                    else
+                        "Disponibilidad: Agotado"
                 )
             }
         }
