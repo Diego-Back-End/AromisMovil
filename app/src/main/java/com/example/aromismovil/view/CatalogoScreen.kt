@@ -8,23 +8,46 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.aromismovil.viewmodel.CarritoViewModel
 import com.example.aromismovil.viewmodel.ProductoViewModel
 
 @Composable
-fun CatalogoScreen(navController: NavController, viewModel: ProductoViewModel) {
-    val productos by viewModel.productos.collectAsState()
+fun CatalogoScreen(
+    navController: NavController,
+    productoViewModel: ProductoViewModel,
+    carritoViewModel: CarritoViewModel
+) {
+    val productos by productoViewModel.productos.collectAsState()
 
-    LazyColumn(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(productos) { p ->
-            Card(
-                onClick = { navController.navigate("detalle/${p.id}") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(Modifier.padding(12.dp)) {
-                    Text(p.nombre, style = MaterialTheme.typography.titleMedium)
-                    Text("Precio: $${"%.0f".format(p.precio)}")
-                    Spacer(Modifier.height(8.dp))
-                    Button(onClick = { viewModel.agregarAlCarrito(p) }) { Text("Agregar al carrito") }
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Catálogo de productos",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(productos) { producto ->
+                Card(
+                    onClick = { navController.navigate("detalle/${producto.id}") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = producto.nombre,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text("Precio: $${"%.0f".format(producto.precio)}")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                carritoViewModel.agregarAlCarrito(producto)
+                            }
+                        ) {
+                            Text("Agregar al carrito")
+                        }
+                    }
                 }
             }
         }
