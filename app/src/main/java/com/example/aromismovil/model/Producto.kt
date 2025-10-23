@@ -6,5 +6,8 @@ data class Producto(
     val precio: Double = 0.0,
     val disponible: Boolean = true,
     val descripcion: String = "",
-    val imagenUrl: String = ""
+    val imagenUrl: String = "",
+    val stock: Int = 0,
+    val categoria: String = "Ropa",
+    val tallas: List<String> = listOf("S", "M", "L", "XL")
 )

@@ -4,5 +4,7 @@ data class Usuario(
     val id: Int = 0,
     val nombre: String = "",
     val correo: String = "",
-    val direccion: String = ""
+    val direccion: String = "",
+    val rol: String = "Cliente", // Cliente | Administrador
+    val telefono: String = ""
 )
