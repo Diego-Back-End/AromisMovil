@@ -2,36 +2,42 @@ package com.example.aromismovil.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aromismovil.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.aromismovil.model.Usuario
 
 class UsuarioViewModel : ViewModel() {
 
-    // Estado del usuario actual
     private val _usuario = MutableStateFlow(Usuario())
-    val usuario: StateFlow<Usuario> = _usuario
+    val usuario: StateFlow<Usuario> = _usuario.asStateFlow()
 
-    // Simula iniciar sesión
-    fun iniciarSesion(nombre: String, correo: String) {
+    private val _esAdministrador = MutableStateFlow(false)
+    val esAdministrador: StateFlow<Boolean> = _esAdministrador.asStateFlow()
+
+    fun iniciarSesion(nombre: String, correo: String, rol: String = "Cliente") {
         viewModelScope.launch {
-            _usuario.value = Usuario(nombre = nombre, correo = correo, direccion = "")
+            _usuario.value = Usuario(nombre = nombre, correo = correo, rol = rol)
+            _esAdministrador.value = rol.equals("Administrador", ignoreCase = true)
         }
     }
 
-    // Actualiza los datos del usuario
-    fun actualizarDireccion(nuevaDireccion: String) {
-        viewModelScope.launch {
-            val actual = _usuario.value
-            _usuario.value = actual.copy(direccion = nuevaDireccion)
-        }
+    fun actualizarDireccion(nueva: String) {
+        _usuario.value = _usuario.value.copy(direccion = nueva)
     }
 
-    // Cierra sesión
+    fun actualizarTelefono(nuevo: String) {
+        _usuario.value = _usuario.value.copy(telefono = nuevo)
+    }
+
     fun cerrarSesion() {
-        viewModelScope.launch {
-            _usuario.value = Usuario() // Reinicia los datos
-        }
+        _usuario.value = Usuario()
+        _esAdministrador.value = false
+    }
+
+    fun cambiarRol(rol: String) {
+        _usuario.value = _usuario.value.copy(rol = rol)
+        _esAdministrador.value = rol.equals("Administrador", ignoreCase = true)
     }
 }
