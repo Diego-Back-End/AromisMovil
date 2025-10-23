@@ -6,18 +6,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.example.aromismovil.model.Producto
 import com.example.aromismovil.viewmodel.ProductoViewModel
 
@@ -58,41 +54,26 @@ fun DetalleProductoScreen(
                 .verticalScroll(scroll)
                 .fillMaxSize()
         ) {
-            // ✅ Imagen con manejo de carga y error
+            // ✅ Imagen local desde drawable
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp),
                 contentAlignment = Alignment.Center
             ) {
-                val painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(producto.imagenUrl)
-                        .crossfade(true)
-                        .build()
-                )
-
-                when (val state = painter.state) {
-                    is AsyncImagePainter.State.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
-                    is AsyncImagePainter.State.Error -> {
-                        Icon(
-                            imageVector = Icons.Default.ImageNotSupported,
-                            contentDescription = "Error al cargar imagen",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-
-                    else -> {
-                        Image(
-                            painter = painter,
-                            contentDescription = producto.nombre,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                if (producto.imagenRes != 0) {
+                    Image(
+                        painter = painterResource(id = producto.imagenRes),
+                        contentDescription = producto.nombre,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        "Sin imagen disponible",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
 

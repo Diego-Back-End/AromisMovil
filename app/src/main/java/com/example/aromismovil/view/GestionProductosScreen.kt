@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,7 +41,9 @@ fun GestionProductosScreen(navController: NavController, viewModel: ProductoView
                         Card(Modifier.fillMaxWidth()) {
                             ListItem(
                                 headlineContent = { Text(p.nombre, fontWeight = FontWeight.Bold) },
-                                supportingContent = { Text("$${"%.0f".format(p.precio)} - Stock: ${p.stock}") },
+                                supportingContent = {
+                                    Text("$${"%.0f".format(p.precio)} - Stock: ${p.stock}")
+                                },
                                 trailingContent = {
                                     Row {
                                         IconButton(onClick = { productoEditar = p; mostrarDialogo = true }) {
@@ -64,7 +67,8 @@ fun GestionProductosScreen(navController: NavController, viewModel: ProductoView
                 onConfirmar = { nuevo ->
                     if (productoEditar == null) viewModel.agregarProducto(nuevo)
                     else viewModel.actualizarProducto(nuevo)
-                    mostrarDialogo = false; productoEditar = null
+                    mostrarDialogo = false
+                    productoEditar = null
                 },
                 onCancelar = { mostrarDialogo = false; productoEditar = null }
             )
@@ -78,11 +82,13 @@ private fun DialogoProducto(
     onConfirmar: (Producto) -> Unit,
     onCancelar: () -> Unit
 ) {
+    val context = LocalContext.current
+
     var nombre by remember { mutableStateOf(producto?.nombre ?: "") }
     var precioTxt by remember { mutableStateOf(producto?.precio?.toString() ?: "") }
     var stockTxt by remember { mutableStateOf(producto?.stock?.toString() ?: "") }
     var descripcion by remember { mutableStateOf(producto?.descripcion ?: "") }
-    var imagenUrl by remember { mutableStateOf(producto?.imagenUrl ?: "") }
+    var imagenNombre by remember { mutableStateOf("") } // nombre del drawable sin "R.drawable."
 
     val precioOk = precioTxt.toDoubleOrNull()?.let { it >= 0 } == true
     val stockOk = stockTxt.toIntOrNull()?.let { it >= 0 } == true
@@ -102,25 +108,39 @@ private fun DialogoProducto(
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(descripcion, { descripcion = it }, label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(imagenUrl, { imagenUrl = it }, label = { Text("URL de imagen") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    imagenNombre,
+                    { imagenNombre = it },
+                    label = { Text("Nombre de imagen (sin .png)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
+                    // Convierte el nombre a ID del drawable
+                    val resId = context.resources.getIdentifier(
+                        imagenNombre,
+                        "drawable",
+                        context.packageName
+                    )
+
                     val p = Producto(
                         id = producto?.id ?: 0,
                         nombre = nombre,
                         precio = precioTxt.toDoubleOrNull() ?: 0.0,
                         stock = stockTxt.toIntOrNull() ?: 0,
                         descripcion = descripcion,
-                        imagenUrl = imagenUrl,
+                        imagenRes = if (resId != 0) resId else producto?.imagenRes ?: 0,
                         disponible = (stockTxt.toIntOrNull() ?: 0) > 0
                     )
                     onConfirmar(p)
                 },
                 enabled = formOk
-            ) { Text("Confirmar") }
+            ) {
+                Text("Confirmar")
+            }
         },
         dismissButton = { TextButton(onClick = onCancelar) { Text("Cancelar") } }
     )
