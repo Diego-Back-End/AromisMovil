@@ -16,7 +16,9 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
     var rol by remember { mutableStateOf("Cliente") }
 
     Column(
-        Modifier.fillMaxSize().padding(32.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -24,21 +26,48 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
 
         Spacer(Modifier.height(24.dp))
 
-        OutlinedTextField(nombre, { nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = nombre,
+            onValueChange = { nombre = it },
+            label = { Text("Nombre") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(correo, { correo = it }, label = { Text("Correo") }, modifier = Modifier.fillMaxWidth())
+
+        OutlinedTextField(
+            value = correo,
+            onValueChange = { correo = it },
+            label = { Text("Correo") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(Modifier.height(12.dp))
-        OutlinedTextField(rol, { rol = it }, label = { Text("Rol (Cliente/Administrador)") }, modifier = Modifier.fillMaxWidth())
+
+        OutlinedTextField(
+            value = rol,
+            onValueChange = { rol = it },
+            label = { Text("Rol (Cliente/Administrador)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(Modifier.height(24.dp))
 
         Button(
             onClick = {
                 usuarioViewModel.iniciarSesion(nombre, correo, rol)
-                if (rol.equals("Administrador", ignoreCase = true)) navController.navigate("gestion")
-                else navController.navigate("catalogo")
+                if (rol.equals("Administrador", ignoreCase = true))
+                    navController.navigate("gestion")
+                else
+                    navController.navigate("catalogo")
             },
+            enabled = nombre.isNotBlank() && correo.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Iniciar Sesión") }
+        ) {
+            Text("Iniciar Sesión")
+        }
     }
 }
