@@ -10,55 +10,65 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.aromismovil.model.Producto
+import com.example.aromismovil.model.AppDatabase
+import com.example.aromismovil.model.ProductoEntity
+import com.example.aromismovil.repository.ProductoRepository
 import com.example.aromismovil.ui.theme.AromisMovilTheme
 import com.example.aromismovil.view.*
-import com.example.aromismovil.viewmodel.ProductoViewModel
-import com.example.aromismovil.viewmodel.UsuarioViewModel
-import androidx.compose.runtime.getValue
+import com.example.aromismovil.viewmodel.*
+import kotlinx.coroutines.launch
+
 class MainActivity : ComponentActivity() {
 
-    private val productoViewModel: ProductoViewModel by viewModels()
+    private lateinit var productoViewModel: ProductoViewModel
     private val usuarioViewModel: UsuarioViewModel by viewModels()
+    private val carritoViewModel: CarritoViewModel by viewModels()
+    private val pedidoViewModel: PedidoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val database = AppDatabase.getDatabase(applicationContext)
+        val repository = ProductoRepository(database.productoDao())
+        val factory = ProductoViewModelFactory(repository)
+        productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
+
         val demo = listOf(
-            Producto(
+            ProductoEntity(
                 id = 1,
                 nombre = "Polera Oversize Blanca",
                 precio = 12990.0,
                 descripcion = "Polera 100% algodón con corte oversize",
-                imagenRes = R.drawable.ropa3, //  tu imagen local
+                imagenRes = R.drawable.ropa1,
                 stock = 10
             ),
-            Producto(
+            ProductoEntity(
                 id = 2,
                 nombre = "Pantalón Cargo Beige",
                 precio = 19990.0,
-                descripcion = "Pantalón con bolsillos laterales",
+                descripcion = "Pantalón con bolsillos laterales y ajuste en tobillos",
                 imagenRes = R.drawable.ropa2,
                 stock = 5
             ),
-            Producto(
+            ProductoEntity(
                 id = 3,
                 nombre = "Chaqueta Jeans Unisex",
                 precio = 24990.0,
                 descripcion = "Chaqueta de mezclilla clásica",
-                imagenRes = R.drawable.ropa1,
+                imagenRes = R.drawable.ropa3,
                 stock = 3
             )
         )
 
-
-        // Carga los productos solo si la lista está vacía
-        if (productoViewModel.productos.value.isEmpty()) {
-            productoViewModel.seed(demo)
+        lifecycleScope.launch {
+            val productos = productoViewModel.productos.value
+            if (productos.isEmpty()) demo.forEach { productoViewModel.agregarProducto(it) }
         }
 
         setContent {
@@ -68,8 +78,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     AromisApp(
-                        productoViewModel = productoViewModel,
-                        usuarioViewModel = usuarioViewModel
+                        productoViewModel,
+                        carritoViewModel,
+                        pedidoViewModel,
+                        usuarioViewModel
                     )
                 }
             }
@@ -80,83 +92,56 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun AromisApp(
     productoViewModel: ProductoViewModel,
+    carritoViewModel: CarritoViewModel,
+    pedidoViewModel: PedidoViewModel,
     usuarioViewModel: UsuarioViewModel
 ) {
     val navController: NavHostController = rememberNavController()
-    val esAdmin by usuarioViewModel.esAdministrador.collectAsState()
+    val esAdmin = usuarioViewModel.esAdministrador.collectAsState()
 
-    NavHost(
-        navController = navController,
-        startDestination = "login"
-    ) {
-        composable("login") {
-            LoginScreen(
-                navController = navController,
-                usuarioViewModel = usuarioViewModel
-            )
-        }
+    NavHost(navController = navController, startDestination = "login") {
+
+        composable("login") { LoginScreen(navController, usuarioViewModel) }
 
         composable("catalogo") {
             CatalogoScreen(
                 navController = navController,
-                viewModel = productoViewModel
+                productoViewModel = productoViewModel,
+                carritoViewModel = carritoViewModel
             )
         }
 
         composable("carrito") {
             CarritoScreen(
                 navController = navController,
-                viewModel = productoViewModel,
+                carritoViewModel = carritoViewModel,
+                pedidoViewModel = pedidoViewModel,
                 usuarioViewModel = usuarioViewModel
             )
         }
 
-        composable("confirmacion") {
-            ConfirmacionScreen(
-                navController = navController,
-                usuarioViewModel = usuarioViewModel
-            )
-        }
+        composable("confirmacion") { ConfirmacionScreen(navController, usuarioViewModel) }
 
-        composable("perfil") {
-            PerfilScreen(
-                viewModel = usuarioViewModel,
-                navController = navController
-            )
-        }
+        composable("perfil") { PerfilScreen(usuarioViewModel, navController) }
 
-        composable("historial") {
-            HistorialPedidosScreen(
-                navController = navController,
-                viewModel = productoViewModel
-            )
-        }
+        composable("historial") { HistorialPedidosScreen(navController, pedidoViewModel) }
 
         composable("gestion") {
-            if (esAdmin) {
-                GestionProductosScreen(
-                    navController = navController,
-                    viewModel = productoViewModel
-                )
-            } else {
-                navController.navigate("catalogo")
-            }
+            if (esAdmin.value) GestionProductosScreen(navController, productoViewModel)
+            else navController.navigate("catalogo")
         }
 
-        // 🔹 Detalle del producto con validación segura
         composable("detalle/{productoId}") { backStack ->
             val id = backStack.arguments?.getString("productoId")?.toIntOrNull()
-            val producto = id?.let { productoViewModel.obtenerProductoPorId(it) }
-
-            if (producto != null) {
-                DetalleProductoScreen(
-                    producto = producto,
-                    navController = navController,
-                    viewModel = productoViewModel
-                )
-            } else {
-                // Evita crash si el ID no existe
-                navController.popBackStack()
+            id?.let { productoId ->
+                productoViewModel.productos.value.find { it.id == productoId }?.let { producto ->
+                    DetalleProductoScreen(
+                        producto = producto,
+                        navController = navController,
+                        productoViewModel = productoViewModel,
+                        carritoViewModel = carritoViewModel
+                    )
+                }
             }
         }
     }
