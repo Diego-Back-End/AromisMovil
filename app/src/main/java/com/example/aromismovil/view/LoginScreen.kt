@@ -22,7 +22,7 @@ fun LoginScreen(navController: NavController, usuarioViewModel: UsuarioViewModel
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Aromis Moda", style = MaterialTheme.typography.headlineLarge)
+        Text("LookStore", style = MaterialTheme.typography.headlineLarge)
 
         Spacer(Modifier.height(24.dp))
 
