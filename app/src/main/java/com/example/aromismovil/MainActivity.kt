@@ -24,12 +24,8 @@ import com.example.aromismovil.view.*
 import com.example.aromismovil.viewmodel.*
 import kotlinx.coroutines.launch
 
-// Clase principal de la aplicación Aromis Móvil.
-// Aquí se inicializan los ViewModels, la base de datos, los datos de ejemplo
-// y se configura toda la navegación entre pantallas.
 class MainActivity : ComponentActivity() {
 
-    // Declaración de los ViewModels que manejarán la lógica de cada módulo.
     private lateinit var productoViewModel: ProductoViewModel
     private val usuarioViewModel: UsuarioViewModel by viewModels()
     private val carritoViewModel: CarritoViewModel by viewModels()
@@ -38,15 +34,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Se obtiene la base de datos local y el repositorio de productos.
+        //  Inicializar base de datos y repositorio
         val database = AppDatabase.getDatabase(applicationContext)
         val repository = ProductoRepository(database.productoDao())
 
-        // Se crea una fábrica para poder pasar el repositorio al ViewModel de productos.
+        //  Crear ViewModel de productos con su Factory
         val factory = ProductoViewModelFactory(repository)
         productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
 
-        // Lista de productos de ejemplo para mostrar al inicio.
+        //  Lista de productos de ejemplo
         val demo = listOf(
             ProductoEntity(
                 id = 1,
@@ -74,20 +70,24 @@ class MainActivity : ComponentActivity() {
             )
         )
 
-        // Se insertan los productos de ejemplo solo si la base de datos está vacía.
+        // Insertar productos solo si la base está vacía
         lifecycleScope.launch {
-            val productos = productoViewModel.productos.value
-            if (productos.isEmpty()) demo.forEach { productoViewModel.agregarProducto(it) }
+            val productosExistentes = database.productoDao().obtenerProductosDirecto()
+            if (productosExistentes.isEmpty()) {
+                demo.forEach { database.productoDao().insertar(it) }
+                println(" Productos insertados correctamente en la base de datos.")
+            } else {
+                println(" Ya existen productos en la base (${productosExistentes.size})")
+            }
         }
 
-        // Se establece el contenido visual de la app con Jetpack Compose.
+        //  Cargar la interfaz
         setContent {
             AromisMovilTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Se llama a la función principal que contiene la navegación.
                     AromisApp(
                         productoViewModel,
                         carritoViewModel,
@@ -100,7 +100,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Función principal que define la estructura de navegación entre pantallas de la app.
 @Composable
 private fun AromisApp(
     productoViewModel: ProductoViewModel,
@@ -108,19 +107,13 @@ private fun AromisApp(
     pedidoViewModel: PedidoViewModel,
     usuarioViewModel: UsuarioViewModel
 ) {
-    // Controlador de navegación.
     val navController: NavHostController = rememberNavController()
-
-    // Observa si el usuario tiene rol de administrador.
     val esAdmin = usuarioViewModel.esAdministrador.collectAsState()
 
-    // Configuración de las rutas (pantallas) disponibles en la aplicación.
     NavHost(navController = navController, startDestination = "login") {
 
-        // Pantalla de inicio de sesión.
         composable("login") { LoginScreen(navController, usuarioViewModel) }
 
-        // Pantalla del catálogo de productos.
         composable("catalogo") {
             CatalogoScreen(
                 navController = navController,
@@ -129,7 +122,6 @@ private fun AromisApp(
             )
         }
 
-        // Pantalla del carrito de compras.
         composable("carrito") {
             CarritoScreen(
                 navController = navController,
@@ -139,26 +131,20 @@ private fun AromisApp(
             )
         }
 
-        // Pantalla de confirmación de compra.
         composable("confirmacion") { ConfirmacionScreen(navController, usuarioViewModel) }
-
-        // Pantalla del perfil del usuario.
         composable("perfil") { PerfilScreen(usuarioViewModel, navController) }
-
-        // Pantalla del historial de pedidos.
         composable("historial") { HistorialPedidosScreen(navController, pedidoViewModel) }
 
-        // Pantalla de gestión de productos (solo accesible para administradores).
         composable("gestion") {
-            if (esAdmin.value) GestionProductosScreen(navController, productoViewModel)
-            else navController.navigate("catalogo") // Redirige si no tiene permisos.
+            if (esAdmin.value)
+                GestionProductosScreen(navController, productoViewModel)
+            else
+                navController.navigate("catalogo")
         }
 
-        // Pantalla de detalle del producto.
         composable("detalle/{productoId}") { backStack ->
             val id = backStack.arguments?.getString("productoId")?.toIntOrNull()
             id?.let { productoId ->
-                // Busca el producto según su ID y lo muestra en la pantalla de detalle.
                 productoViewModel.productos.value.find { it.id == productoId }?.let { producto ->
                     DetalleProductoScreen(
                         producto = producto,
