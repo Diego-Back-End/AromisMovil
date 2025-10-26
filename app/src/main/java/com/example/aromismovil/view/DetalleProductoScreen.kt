@@ -18,17 +18,20 @@ import com.example.aromismovil.model.ProductoEntity
 import com.example.aromismovil.viewmodel.CarritoViewModel
 import com.example.aromismovil.viewmodel.ProductoViewModel
 
+// Pantalla que muestra la información detallada de un producto seleccionado del catálogo.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleProductoScreen(
-    producto: ProductoEntity,
-    navController: NavController,
-    productoViewModel: ProductoViewModel,
-    carritoViewModel: CarritoViewModel
+    producto: ProductoEntity,               // Producto que se mostrará en detalle.
+    navController: NavController,           // Controlador de navegación para volver o ir al carrito.
+    productoViewModel: ProductoViewModel,   // ViewModel que maneja los datos del producto.
+    carritoViewModel: CarritoViewModel      // ViewModel que maneja el carrito de compras.
 ) {
-    val scroll = rememberScrollState()
+    val scroll = rememberScrollState() // Permite hacer scroll cuando el contenido es largo.
 
+    // Estructura general de la pantalla con barra superior y botón flotante.
     Scaffold(
+        // Barra superior con el título y el botón de volver atrás.
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Detalle del Producto") },
@@ -39,6 +42,7 @@ fun DetalleProductoScreen(
                 }
             )
         },
+        // Botón flotante para agregar el producto al carrito.
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
@@ -50,19 +54,21 @@ fun DetalleProductoScreen(
             }
         }
     ) { inner ->
+        // Contenido principal desplazable de la pantalla.
         Column(
             modifier = Modifier
                 .padding(inner)
                 .verticalScroll(scroll)
                 .fillMaxSize()
         ) {
-            // 🖼 Imagen
+            // Sección de la imagen del producto.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp),
                 contentAlignment = Alignment.Center
             ) {
+                // Si el producto tiene imagen, se muestra; si no, se muestra un texto de aviso.
                 if (producto.imagenRes != 0) {
                     Image(
                         painter = painterResource(id = producto.imagenRes),
@@ -79,8 +85,9 @@ fun DetalleProductoScreen(
                 }
             }
 
-            // 🧾 Detalle del producto
+            // Sección con los detalles del producto (nombre, precio, descripción y stock).
             Column(Modifier.padding(16.dp)) {
+                // Nombre del producto.
                 Text(
                     producto.nombre,
                     style = MaterialTheme.typography.headlineSmall
@@ -88,6 +95,7 @@ fun DetalleProductoScreen(
 
                 Spacer(Modifier.height(6.dp))
 
+                // Precio del producto en formato numérico.
                 Text(
                     "$${"%.0f".format(producto.precio)}",
                     style = MaterialTheme.typography.titleLarge,
@@ -96,12 +104,13 @@ fun DetalleProductoScreen(
 
                 Spacer(Modifier.height(12.dp))
 
+                // Descripción detallada.
                 Text("Descripción", style = MaterialTheme.typography.titleMedium)
                 Text(producto.descripcion)
 
                 Spacer(Modifier.height(12.dp))
 
-                // ✅ Mostrar stock real
+                // Mostrar si el producto está disponible o agotado según el stock.
                 Text(
                     text = if (producto.stock > 0)
                         "Disponibilidad: En stock (${producto.stock})"
