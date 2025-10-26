@@ -12,7 +12,7 @@ class ProductoRepository(private val dao: ProductoDao) {
     // Usa Flow para que los cambios se reflejen automáticamente en la interfaz.
     fun obtenerProductos(): Flow<List<ProductoEntity>> = dao.obtenerProductos()
 
-    // Inserta un nuevo producto en la base de datos usando el método del DAO.
+    // Inserta un nuevo producto en la base de datos usando el métod.
     suspend fun insertar(p: ProductoEntity) = dao.insertar(p)
 
     // Actualiza los datos de un producto existente (por ejemplo, precio o stock).
