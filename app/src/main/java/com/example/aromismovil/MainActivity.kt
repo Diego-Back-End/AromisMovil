@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                 nombre = "Polera Oversize Blanca",
                 precio = 12990.0,
                 descripcion = "Polera 100% algodón con corte oversize",
-                imagenRes = R.drawable.ropa1,
+                imagenRes = R.drawable.ropa2,
                 stock = 10
             ),
             ProductoEntity(
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 nombre = "Pantalón Cargo Beige",
                 precio = 19990.0,
                 descripcion = "Pantalón con bolsillos laterales y ajuste en tobillos",
-                imagenRes = R.drawable.ropa2,
+                imagenRes = R.drawable.ropa1,
                 stock = 5
             ),
             ProductoEntity(
