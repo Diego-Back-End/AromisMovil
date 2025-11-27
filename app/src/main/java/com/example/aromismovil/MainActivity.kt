@@ -31,6 +31,9 @@ class MainActivity : ComponentActivity() {
     private val carritoViewModel: CarritoViewModel by viewModels()
     private val pedidoViewModel: PedidoViewModel by viewModels()
 
+    //  ViewModel para la API REST
+    private val postViewModel: PostViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -92,7 +95,8 @@ class MainActivity : ComponentActivity() {
                         productoViewModel,
                         carritoViewModel,
                         pedidoViewModel,
-                        usuarioViewModel
+                        usuarioViewModel,
+                        postViewModel   //  PASAMOS EL VIEWMODEL NUEVO
                     )
                 }
             }
@@ -105,12 +109,14 @@ private fun AromisApp(
     productoViewModel: ProductoViewModel,
     carritoViewModel: CarritoViewModel,
     pedidoViewModel: PedidoViewModel,
-    usuarioViewModel: UsuarioViewModel
+    usuarioViewModel: UsuarioViewModel,
+    postViewModel: PostViewModel            //  RECIBIMOS EL NUEVO VM
 ) {
     val navController: NavHostController = rememberNavController()
     val esAdmin = usuarioViewModel.esAdministrador.collectAsState()
 
-    NavHost(navController = navController, startDestination = "login") {
+    // 👇 Si quieres probar la API directo, cambia "login" por "posts"
+    NavHost(navController = navController, startDestination = "posts") {
 
         composable("login") { LoginScreen(navController, usuarioViewModel) }
 
@@ -154,6 +160,11 @@ private fun AromisApp(
                     )
                 }
             }
+        }
+
+        // 👇 NUEVA RUTA PARA LA PANTALLA QUE CONSUME LA API
+        composable("posts") {
+            PostScreen(postViewModel)
         }
     }
 }
