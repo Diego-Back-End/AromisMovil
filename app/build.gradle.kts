@@ -47,6 +47,21 @@ android {
 }
 
 dependencies {
+
+
+    testImplementation("org.mockito:mockito-core:5.10.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+// Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+// ViewModel + coroutines
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+// Compose + ViewModel (probablemente ya lo tienes)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     // --- Room (Base de datos local)
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
