@@ -221,7 +221,7 @@ private fun DialogoProducto(
                 Text("Confirmar")
             }
         },
-        // Botón de cancelar.
+
         dismissButton = {
             TextButton(onClick = onCancelar) { Text("Cancelar") }
         }
