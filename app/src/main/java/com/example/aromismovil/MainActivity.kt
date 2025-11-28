@@ -115,8 +115,8 @@ private fun AromisApp(
     val navController: NavHostController = rememberNavController()
     val esAdmin = usuarioViewModel.esAdministrador.collectAsState()
 
-    // 👇 Si quieres probar la API directo, cambia "login" por "posts"
-    NavHost(navController = navController, startDestination = "posts") {
+    // Si quieres probar la API directo, cambia "login" por "posts"
+    NavHost(navController = navController, startDestination = "login") {
 
         composable("login") { LoginScreen(navController, usuarioViewModel) }
 
@@ -162,7 +162,7 @@ private fun AromisApp(
             }
         }
 
-        // 👇 NUEVA RUTA PARA LA PANTALLA QUE CONSUME LA API
+        // NUEVA RUTA PARA LA PANTALLA QUE CONSUME LA API
         composable("posts") {
             PostScreen(postViewModel)
         }
