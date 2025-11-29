@@ -1,5 +1,7 @@
 package com.example.aromismovil
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,21 +33,29 @@ class MainActivity : ComponentActivity() {
     private val carritoViewModel: CarritoViewModel by viewModels()
     private val pedidoViewModel: PedidoViewModel by viewModels()
 
-    //  ViewModel para la API REST
+    // ViewModel para la API REST externa
     private val postViewModel: PostViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //  Inicializar base de datos y repositorio
+        // PERMISO DE NOTIFICACIONES (solo Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 100)
+        }
+
+        // NOTIFICACIÓN DE BIENVENIDA
+        NotificationHelper.showWelcomeNotification(this)
+
+        // 🗄️ Inicializar base de datos y repositorio
         val database = AppDatabase.getDatabase(applicationContext)
         val repository = ProductoRepository(database.productoDao())
 
-        //  Crear ViewModel de productos con su Factory
+        // Crear ViewModel de productos con su Factory
         val factory = ProductoViewModelFactory(repository)
         productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
 
-        //  Lista de productos de ejemplo
+        // 🧪 Lista de productos de ejemplo
         val demo = listOf(
             ProductoEntity(
                 id = 1,
@@ -78,13 +88,13 @@ class MainActivity : ComponentActivity() {
             val productosExistentes = database.productoDao().obtenerProductosDirecto()
             if (productosExistentes.isEmpty()) {
                 demo.forEach { database.productoDao().insertar(it) }
-                println(" Productos insertados correctamente en la base de datos.")
+                println("✅ Productos insertados correctamente en la base de datos.")
             } else {
-                println(" Ya existen productos en la base (${productosExistentes.size})")
+                println("ℹ️ Ya existen productos en la base (${productosExistentes.size})")
             }
         }
 
-        //  Cargar la interfaz
+        // Cargar la interfaz
         setContent {
             AromisMovilTheme {
                 Surface(
@@ -96,7 +106,7 @@ class MainActivity : ComponentActivity() {
                         carritoViewModel,
                         pedidoViewModel,
                         usuarioViewModel,
-                        postViewModel   //  PASAMOS EL VIEWMODEL NUEVO
+                        postViewModel
                     )
                 }
             }
@@ -110,12 +120,12 @@ private fun AromisApp(
     carritoViewModel: CarritoViewModel,
     pedidoViewModel: PedidoViewModel,
     usuarioViewModel: UsuarioViewModel,
-    postViewModel: PostViewModel            //  RECIBIMOS EL NUEVO VM
+    postViewModel: PostViewModel
 ) {
     val navController: NavHostController = rememberNavController()
     val esAdmin = usuarioViewModel.esAdministrador.collectAsState()
 
-    // Si quieres probar la API directo, cambia "login" por "posts"
+    //recordad cambiar aqui de login aposts  para el consumo de la api
     NavHost(navController = navController, startDestination = "login") {
 
         composable("login") { LoginScreen(navController, usuarioViewModel) }
@@ -162,7 +172,6 @@ private fun AromisApp(
             }
         }
 
-        // NUEVA RUTA PARA LA PANTALLA QUE CONSUME LA API
         composable("posts") {
             PostScreen(postViewModel)
         }
