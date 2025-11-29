@@ -1,6 +1,7 @@
 package com.example.aromismovil.model
 
-// Ahora este "Post" en verdad es un producto de la API FakeStore
+// Modelo de datos que representa un producto obtenido desde la API externa FakeStore.
+// Se utiliza para mapear la estructura JSON que entrega el servicio.
 data class Post(
     val id: Int,
     val title: String,       // nombre del producto
