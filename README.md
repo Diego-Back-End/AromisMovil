@@ -63,11 +63,11 @@ Incluyen pruebas de:
 
 ---
 
-## 📸 Evidencia del proyecto
-El repositorio contiene todo el historial de desarrollo, commits y versiones.
+## Evidencia del proyecto
+El repositorio contiene todo el historial de desarrollo, commitss
 
 ---
 
-# ✔ Proyecto entregado según los requisitos solicitados
+# Proyecto entregado según los requisitos solicitados
 
 
