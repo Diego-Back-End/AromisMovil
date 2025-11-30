@@ -54,7 +54,7 @@ Incluyen pruebas de:
 
 ---
 
-## ódigo incluido en este repositorio
+## código incluido en este repositorio
 - Código fuente de **LookStore** (aplicación móvil)
 - Microservicios de backend (Spring Boot)
 - Controladores, servicios y configuración de BD
