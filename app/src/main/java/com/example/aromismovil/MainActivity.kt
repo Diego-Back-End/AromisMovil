@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
         // NOTIFICACIÓN DE BIENVENIDA
         NotificationHelper.showWelcomeNotification(this)
 
-        // 🗄️ Inicializar base de datos y repositorio
+        // 🗄 Inicializar base de datos y repositorio
         val database = AppDatabase.getDatabase(applicationContext)
         val repository = ProductoRepository(database.productoDao())
 
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
         val factory = ProductoViewModelFactory(repository)
         productoViewModel = ViewModelProvider(this, factory)[ProductoViewModel::class.java]
 
-        // 🧪 Lista de productos de ejemplo
+        //  Lista de productos de ejemplo
         val demo = listOf(
             ProductoEntity(
                 id = 1,
@@ -88,9 +88,9 @@ class MainActivity : ComponentActivity() {
             val productosExistentes = database.productoDao().obtenerProductosDirecto()
             if (productosExistentes.isEmpty()) {
                 demo.forEach { database.productoDao().insertar(it) }
-                println("✅ Productos insertados correctamente en la base de datos.")
+                println(" Productos insertados correctamente en la base de datos.")
             } else {
-                println("ℹ️ Ya existen productos en la base (${productosExistentes.size})")
+                println("ℹ Ya existen productos en la base (${productosExistentes.size})")
             }
         }
 
